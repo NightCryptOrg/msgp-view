@@ -10,7 +10,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: mgsp-view {file}")
+		fmt.Fprintln(os.Stderr, "usage: msgp-view {file}")
 		return
 	}
 
