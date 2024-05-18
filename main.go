@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/tinylib/msgp/msgp"
 )
@@ -15,7 +16,6 @@ func main() {
 
 	var err error
 	err = readFile(os.Args[1])
-	fmt.Println()
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -30,6 +30,16 @@ func readFile(path string) error {
 	}
 	defer file.Close()
 
-	_, err = msgp.CopyToJSON(os.Stdout, file)
+	// Pipe output to jq for pretty-printing
+	cmd := exec.Command("jq")
+	cmd.Stdout = os.Stdout
+	jq, err := cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
+	cmd.Start()
+	_, err = msgp.CopyToJSON(jq, file)
+	jq.Close()
+	cmd.Wait()
 	return err
 }
